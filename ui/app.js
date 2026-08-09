@@ -1,280 +1,312 @@
-const AGENTS = [
-    { id: "JARVIS", name: "JARVIS PRIME", role: "Main Orchestrator & Strategy", state: "ONLINE" },
-    { id: "FRIDAY", name: "FRIDAY", role: "Daily Briefs & Tasks Log", state: "ONLINE" },
-    { id: "STARK", name: "STARK / OS", role: "Taskbar & Desktop Installed Apps", state: "ONLINE" },
-    { id: "SPECTRE", name: "SPECTRE", role: "Browser & Playwright Tabs", state: "ONLINE" },
-    { id: "HERALD", name: "HERALD", role: "Whisper Voice & Speech", state: "ONLINE" },
-    { id: "BANNER", name: "BANNER", role: "AI Design & Pillow Layout", state: "ONLINE" },
-    { id: "HULK", name: "HULK", role: "Offline Failover Engine", state: "STANDBY" }
+const MENTRO_SUBAGENTS = [
+    { id: "CANVA_DESIGNER", name: "🎨 Canva Design Studio", role: "Layered Canva-style Graphics & Image AI" },
+    { id: "NOTEBOOK_AI", name: "📚 NotebookLM Studio", role: "Document Synthesis & Study Flashcards" },
+    { id: "CAREER_SUITE", name: "💼 Career Suite & Resume", role: "Naukri / LinkedIn ATS Resume Builder" },
+    { id: "INTERVIEWER_AI", name: "🎙️ AI Mock Interviewer", role: "Role-based Mock Technical Interview Simulator" },
+    { id: "GITHUB_STUDIO", name: "🐙 GitHub Code Studio", role: "Repo Telemetry & AI Code Reviewer" }
 ];
 
 let socket = null;
-let mediaRecorder = null;
-let audioChunks = [];
-let isRecording = false;
+let availableModels = [];
 
 document.addEventListener("DOMContentLoaded", () => {
-    renderAgents();
+    renderSubagents();
+    initTabs();
+    fetchModels();
     initWebSocket();
     setupEventListeners();
 });
 
-function renderAgents() {
-    const grid = document.getElementById("agentsGrid");
-    grid.innerHTML = "";
-
-    AGENTS.forEach(ag => {
-        const card = document.createElement("div");
-        card.className = "agent-card";
-        card.id = `card-${ag.id}`;
-        card.innerHTML = `
-            <div class="agent-header">
-                <span class="agent-name">${ag.name}</span>
-                <span class="agent-state" id="state-${ag.id}">${ag.state}</span>
-            </div>
-            <div class="agent-role">${ag.role}</div>
+function renderSubagents() {
+    const list = document.getElementById("subagentsList");
+    list.innerHTML = "";
+    MENTRO_SUBAGENTS.forEach(ag => {
+        const div = document.createElement("div");
+        div.className = "subagent-card";
+        div.innerHTML = `
+            <div class="subagent-name">${ag.name}</div>
+            <div class="subagent-role">${ag.role}</div>
         `;
-        grid.appendChild(card);
+        list.appendChild(div);
     });
 }
 
-let reconnectTimer = null;
+function initTabs() {
+    const tabs = document.querySelectorAll(".nav-tab");
+    tabs.forEach(tab => {
+        tab.addEventListener("click", () => {
+            tabs.forEach(t => t.classList.remove("active"));
+            document.querySelectorAll(".tab-pane").forEach(p => p.classList.remove("active"));
+            
+            tab.classList.add("active");
+            const paneId = tab.getAttribute("data-tab");
+            document.getElementById(paneId).classList.add("active");
+        });
+    });
+}
+
+async function fetchModels() {
+    try {
+        const res = await fetch("/api/models");
+        const data = await res.json();
+        if (data.models) {
+            availableModels = data.models;
+            const select = document.getElementById("modelSelect");
+            select.innerHTML = "";
+            data.models.forEach(m => {
+                const opt = document.createElement("option");
+                opt.value = m.id;
+                opt.innerText = `${m.name} [${m.provider}]`;
+                select.appendChild(opt);
+            });
+        }
+    } catch (e) {
+        console.error("Fetch models error:", e);
+    }
+}
+
+function getSelectedModel() {
+    const select = document.getElementById("modelSelect");
+    return select ? select.value : "gemini-3.5-flash-lite";
+}
 
 function initWebSocket() {
-    if (socket && (socket.readyState === WebSocket.CONNECTING || socket.readyState === WebSocket.OPEN)) {
-        return;
-    }
-
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
     const wsUrl = `${protocol}//${window.location.host}/ws`;
     
     try {
         socket = new WebSocket(wsUrl);
-
         socket.onopen = () => {
-            if (reconnectTimer) {
-                clearTimeout(reconnectTimer);
-                reconnectTimer = null;
-            }
-            const badge = document.querySelector(".status-badge span");
-            if (badge) badge.innerText = "CORE ONLINE (" + window.location.host + ")";
-            appendLog("SYSTEM", `WebSocket channel connected on ${window.location.host}.`, "log-success");
+            appendLog("SYSTEM", `WebSocket online on ${window.location.host}.`, "log-success");
         };
-
         socket.onmessage = (event) => {
-            try {
-                const data = JSON.parse(event.data);
-                handleServerEvent(data);
-            } catch (e) {
-                console.error("Log JSON parse error:", e);
-            }
+            const data = JSON.parse(event.data);
+            handleServerEvent(data);
         };
-
         socket.onclose = () => {
-            const badge = document.querySelector(".status-badge span");
-            if (badge) badge.innerText = "RECONNECTING...";
-            if (!reconnectTimer) {
-                reconnectTimer = setTimeout(() => {
-                    reconnectTimer = null;
-                    initWebSocket();
-                }, 2000);
-            }
-        };
-
-        socket.onerror = (err) => {
-            socket.close();
+            setTimeout(initWebSocket, 3000);
         };
     } catch (e) {
-        if (!reconnectTimer) {
-            reconnectTimer = setTimeout(() => {
-                reconnectTimer = null;
-                initWebSocket();
-            }, 2000);
-        }
+        setTimeout(initWebSocket, 3000);
     }
 }
 
 function handleServerEvent(data) {
-    const orb = document.getElementById("voiceOrb");
-
     if (data.event === "thinking") {
-        orb.classList.add("listening");
-        highlightAgent(data.agent);
-        appendLog(data.agent, `${data.step} (${data.thought})`, "log-step");
-    } 
-    else if (data.event === "voice_transcribed") {
-        appendLog("HERALD", `Voice Transcribed: "${data.transcription}"`, "log-success");
-    }
-    else if (data.event === "agent_selected") {
-        highlightAgent(data.target);
-        appendLog("JARVIS", `Delegated to ${data.target}: ${data.reasoning}`);
-    } 
-    else if (data.event === "executing") {
-        highlightAgent(data.agent);
-        appendLog(data.agent, `Executing workload: ${data.command}`);
-    } 
-    else if (data.event === "completed") {
-        orb.classList.remove("listening");
-        resetAgentCards();
-        appendLog(data.agent, `Result: ${data.final_response}`, "log-success");
-
-        if (data.result && data.result.web_url) {
-            renderDesignPreview(data.result.web_url);
-        }
-
-        if (data.result && data.result.url && data.agent === "SPECTRE") {
-            appendLog("SPECTRE", `Opening browser tab for: ${data.result.url}`, "log-step");
-            try {
-                window.open(data.result.url, "_blank");
-            } catch (e) {
-                console.log("Browser window.open Note:", e);
-            }
-        }
-
-        // Mobile Deep Link handler for iPhone 11 native iOS app launching
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-        if (isMobile && data.result && data.result.app) {
-            const appName = data.result.app.toLowerCase();
-            const mobileDeepLinks = {
-                "whatsapp": "whatsapp://",
-                "youtube": "youtube://",
-                "spotify": "spotify://",
-                "maps": "maps://",
-                "mail": "mailto:",
-                "gmail": "googlegmail://"
-            };
-            if (mobileDeepLinks[appName]) {
-                appendLog("STARK", `Triggering iPhone native app link: ${mobileDeepLinks[appName]}`, "log-step");
-                window.location.href = mobileDeepLinks[appName];
-            }
-        }
+        appendLog(data.agent, `${data.step} (${data.thought})`);
+    } else if (data.event === "agent_selected") {
+        appendLog("MENTRO", `Delegating workload to [${data.target}]: ${data.reasoning}`);
+    } else if (data.event === "completed") {
+        appendLog(data.agent, `Result: ${data.final_response}`);
     }
 }
 
-function highlightAgent(agentId) {
-    resetAgentCards();
-    const card = document.getElementById(`card-${agentId}`);
-    const state = document.getElementById(`state-${agentId}`);
-    if (card) {
-        card.classList.add("active");
-    }
-    if (state) {
-        state.innerText = "PROCESSING";
-        state.style.background = "rgba(255, 153, 0, 0.2)";
-        state.style.color = "#ff9900";
-    }
-}
-
-function resetAgentCards() {
-    AGENTS.forEach(ag => {
-        const card = document.getElementById(`card-${ag.id}`);
-        const state = document.getElementById(`state-${ag.id}`);
-        if (card) card.classList.remove("active");
-        if (state) {
-            state.innerText = ag.id === "HULK" ? "STANDBY" : "ONLINE";
-            state.style.background = "rgba(0, 255, 136, 0.15)";
-            state.style.color = "#00ff88";
-        }
-    });
-}
-
-function appendLog(agent, text, cssClass = "") {
+function appendLog(agent, text) {
     const consoleElem = document.getElementById("terminalConsole");
     const now = new Date().toLocaleTimeString();
-    
     const div = document.createElement("div");
-    div.className = `log-entry ${cssClass}`;
-    div.innerHTML = `<span class="log-time">[${now}]</span> <span class="log-agent">[${agent}]</span>: ${text}`;
-    
+    div.className = "log-entry";
+    div.innerHTML = `<span style="color:#94a3b8">[${now}]</span> <span style="color:#ffd700;font-weight:bold">[${agent}]</span>: ${text}`;
     consoleElem.appendChild(div);
     consoleElem.scrollTop = consoleElem.scrollHeight;
 }
 
-function renderDesignPreview(imageUrl) {
-    const viewport = document.getElementById("designViewport");
-    viewport.innerHTML = `<img src="${imageUrl}?t=${Date.now()}" alt="JARVIS Generated Design">`;
-}
-
 function setupEventListeners() {
-    const input = document.getElementById("cmdInput");
-    const btn = document.getElementById("btnSend");
-    const orb = document.getElementById("voiceOrb");
-
+    // Terminal Command
+    const sendBtn = document.getElementById("btnSend");
+    const cmdInput = document.getElementById("cmdInput");
+    
     const sendCmd = () => {
-        const cmd = input.value.trim();
-        if (!cmd) return;
-        
+        const text = cmdInput.value.trim();
+        if (!text) return;
         if (socket && socket.readyState === WebSocket.OPEN) {
-            socket.send(JSON.stringify({ type: "command", text: cmd }));
-            appendLog("USER", cmd, "log-step");
-            input.value = "";
-        } else {
-            alert("WebSocket connection offline.");
+            socket.send(JSON.stringify({ type: "command", text: text, model: getSelectedModel() }));
+            appendLog("USER", text);
+            cmdInput.value = "";
         }
     };
+    sendBtn.addEventListener("click", sendCmd);
+    cmdInput.addEventListener("keypress", (e) => { if (e.key === "Enter") sendCmd(); });
 
-    btn.addEventListener("click", sendCmd);
-    input.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") sendCmd();
+    // Canva Generator
+    document.getElementById("btnGenerateCanva").addEventListener("click", async () => {
+        const prompt = document.getElementById("canvaPromptInput").value || "Superagent Platform Poster";
+        appendLog("CANVA", `Generating layered canvas for: '${prompt}' with model [${getSelectedModel()}]...`);
+        
+        try {
+            const res = await fetch("/api/canva", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ prompt: prompt, model: getSelectedModel() })
+            });
+            const data = await res.json();
+            if (data.design) {
+                renderCanvaDesign(data.design);
+            }
+        } catch (e) {
+            console.error("Canva API error:", e);
+        }
     });
 
-    // Touch & Click Voice Recording Toggle
-    const handleVoiceClick = async (e) => {
-        e.preventDefault();
-        if (!isRecording) {
-            startAudioRecording();
-        } else {
-            stopAudioRecording();
-        }
-    };
-
-    orb.addEventListener("click", handleVoiceClick);
-}
-
-async function startAudioRecording() {
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    // NotebookLM Synthesis
+    document.getElementById("btnSummarizeNotebook").addEventListener("click", async () => {
+        const content = document.getElementById("notebookInput").value;
+        const out = document.getElementById("notebookOutput");
+        out.innerText = "Synthesizing document insights...";
         
-        let options = {};
-        if (MediaRecorder.isTypeSupported('audio/webm')) {
-            options = { mimeType: 'audio/webm' };
-        } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
-            options = { mimeType: 'audio/mp4' };
-        }
+        const res = await fetch("/api/notebook", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ content: content, action: "summarize", model: getSelectedModel() })
+        });
+        const data = await res.json();
+        out.innerText = data.synthesis || JSON.stringify(data, null, 2);
+    });
 
-        mediaRecorder = new MediaRecorder(stream, options);
-        audioChunks = [];
+    document.getElementById("btnFlashcardsNotebook").addEventListener("click", async () => {
+        const content = document.getElementById("notebookInput").value;
+        const out = document.getElementById("notebookOutput");
+        out.innerText = "Extracting flashcards...";
+        
+        const res = await fetch("/api/notebook", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ content: content, action: "flashcards", model: getSelectedModel() })
+        });
+        const data = await res.json();
+        out.innerText = JSON.stringify(data.result || data, null, 2);
+    });
 
-        mediaRecorder.ondataavailable = (event) => {
-            if (event.data.size > 0) audioChunks.push(event.data);
-        };
+    // Career Suite
+    document.getElementById("btnBuildResume").addEventListener("click", async () => {
+        const role = document.getElementById("careerRoleInput").value;
+        const summary = document.getElementById("resumeInputText").value;
+        const out = document.getElementById("careerOutput");
+        out.innerText = "Building ATS Resume...";
 
-        mediaRecorder.onstop = async () => {
-            const audioBlob = new Blob(audioChunks, { type: options.mimeType || 'audio/wav' });
-            const reader = new FileReader();
-            reader.readAsDataURL(audioBlob);
-            reader.onloadend = () => {
-                const base64Audio = reader.result;
-                if (socket && socket.readyState === WebSocket.OPEN) {
-                    socket.send(JSON.stringify({ type: "audio", data: base64Audio }));
-                    appendLog("USER", "[Voice Audio Command Sent]", "log-step");
-                }
-            };
-        };
+        const res = await fetch("/api/career", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "build_resume", user_info: `Role: ${role}\nSummary: ${summary}`, model: getSelectedModel() })
+        });
+        const data = await res.json();
+        out.innerText = JSON.stringify(data.resume || data, null, 2);
+    });
 
-        mediaRecorder.start();
-        isRecording = true;
-        document.getElementById("voiceOrb").classList.add("listening");
-        appendLog("HERALD", "Listening... Speak command, then click orb to execute.", "log-step");
-    } catch (err) {
-        appendLog("HERALD", `Mic Note: ${err.message}. Type command below if mic permission denied.`, "log-time");
-    }
+    document.getElementById("btnATSCheck").addEventListener("click", async () => {
+        const resume = document.getElementById("resumeInputText").value;
+        const job = document.getElementById("jobDescInputText").value;
+        const out = document.getElementById("careerOutput");
+        out.innerText = "Calculating ATS Match Score...";
+
+        const res = await fetch("/api/career", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "ats_match", resume: resume, job_description: job, model: getSelectedModel() })
+        });
+        const data = await res.json();
+        out.innerText = JSON.stringify(data.result || data, null, 2);
+    });
+
+    // Mock Interviewer
+    document.getElementById("btnGetQuestion").addEventListener("click", async () => {
+        const role = document.getElementById("interviewRoleSelect").value;
+        const qBox = document.getElementById("interviewQuestionBox");
+        qBox.innerText = "Generating question...";
+
+        const res = await fetch("/api/interview", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "generate_question", role: role, model: getSelectedModel() })
+        });
+        const data = await res.json();
+        const q = data.interview_question?.question || "Can you describe a complex AI architecture project you designed?";
+        qBox.innerText = q;
+    });
+
+    document.getElementById("btnSubmitAnswer").addEventListener("click", async () => {
+        const role = document.getElementById("interviewRoleSelect").value;
+        const q = document.getElementById("interviewQuestionBox").innerText;
+        const ans = document.getElementById("candidateAnswerText").value;
+        const out = document.getElementById("interviewEvaluationBox");
+        out.innerText = "Scoring answer...";
+
+        const res = await fetch("/api/interview", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "evaluate", role: role, question: q, answer: ans, model: getSelectedModel() })
+        });
+        const data = await res.json();
+        out.innerText = JSON.stringify(data.evaluation || data, null, 2);
+    });
+
+    // GitHub Code Studio
+    document.getElementById("btnInspectRepo").addEventListener("click", async () => {
+        const url = document.getElementById("githubRepoUrl").value;
+        const out = document.getElementById("githubOutput");
+        out.innerText = "Fetching repository telemetry...";
+
+        const res = await fetch("/api/github", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "inspect_repo", repo_url: url, model: getSelectedModel() })
+        });
+        const data = await res.json();
+        out.innerText = JSON.stringify(data.repo_details || data, null, 2);
+    });
+
+    document.getElementById("btnReviewCode").addEventListener("click", async () => {
+        const code = document.getElementById("codeReviewText").value;
+        const out = document.getElementById("githubOutput");
+        out.innerText = "Running AI Code Review...";
+
+        const res = await fetch("/api/github", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "review_code", code: code, model: getSelectedModel() })
+        });
+        const data = await res.json();
+        out.innerText = JSON.stringify(data.review || data, null, 2);
+    });
 }
 
-function stopAudioRecording() {
-    if (mediaRecorder && isRecording) {
-        mediaRecorder.stop();
-        isRecording = false;
-        document.getElementById("voiceOrb").classList.remove("listening");
+function renderCanvaDesign(design) {
+    const canvas = document.getElementById("canvaCanvas");
+    const layersList = document.getElementById("canvaLayersList");
+    
+    canvas.innerHTML = "";
+    layersList.innerHTML = "";
+    
+    if (design.background) {
+        if (design.background.image_url) {
+            canvas.style.backgroundImage = `url('${design.background.image_url}')`;
+        }
+        if (design.background.color) {
+            canvas.style.backgroundColor = design.background.color;
+        }
     }
+
+    const scale = 400 / (design.width || 1080);
+
+    (design.layers || []).forEach(layer => {
+        // Add layer to list
+        const item = document.createElement("div");
+        item.className = "layer-item";
+        item.innerHTML = `<span>[${layer.type.toUpperCase()}] ${layer.text || layer.id}</span> <span style="color:#00e5ff">${layer.fontSize || ''}px</span>`;
+        layersList.appendChild(item);
+
+        // Render on canvas
+        if (layer.type === "text") {
+            const el = document.createElement("div");
+            el.className = "canvas-layer-text";
+            el.innerText = layer.text;
+            el.style.left = `${(layer.x || 540) * scale}px`;
+            el.style.top = `${(layer.y || 400) * scale}px`;
+            el.style.fontSize = `${(layer.fontSize || 32) * scale}px`;
+            el.style.color = layer.color || "#ffffff";
+            el.style.fontWeight = layer.fontWeight || "normal";
+            
+            canvas.appendChild(el);
+        }
+    });
 }

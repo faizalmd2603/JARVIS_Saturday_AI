@@ -6,210 +6,107 @@ import logging
 from typing import AsyncGenerator, Dict, Any
 from dotenv import load_dotenv
 
-# Ensure project root is in sys.path for Cloud Linux Containers (Render/Railway/CloudRun)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from api_router import router
-from agents.friday import FridayAgent
-from agents.stark import StarkAgent
-from agents.spectre import SpectreAgent
-from agents.herald import HeraldAgent
-from agents.banner import BannerAgent
-from agents.hulk import HulkAgent
+from api_router import router, AVAILABLE_MODELS
+from agents.canva_designer import CanvaDesignerAgent
+from agents.notebook_ai import NotebookAIAgent
+from agents.career_suite import CareerSuiteAgent
+from agents.interviewer_ai import InterviewerAIAgent
+from agents.github_studio import GitHubStudioAgent
 
 load_dotenv()
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s [JARVIS-MAIN] %(message)s")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [MENTRO-MAIN] %(message)s")
 
-# Import Antigravity SDK components safely
-try:
-    from google.antigravity import Agent, LocalAgentConfig
-    from google.antigravity.hooks.policy import allow, ask_user
-    ANTIGRAVITY_AVAILABLE = True
-except Exception as e:
-    logging.warning(f"[MainOrchestrator] google.antigravity import note: {e}. Running integrated protocol wrapper.")
-    ANTIGRAVITY_AVAILABLE = False
-    def allow(): return True
-    def ask_user(action): return True
-
-class JarvisOrchestrator:
+class MentroOrchestrator:
     """
-    JARVIS: Prime Orchestrator under the A.V.E.N.G.E.R.S protocol.
-    Routes user intent to sub-agents, manages streaming thinking traces, and enforces safety policies.
+    Mentro AI Superagent Platform Main Orchestrator.
+    Routes user prompts to specialized Mentro sub-agents.
     """
     def __init__(self):
-        self.name = "JARVIS"
-        self.role = "Prime Orchestrator & System Core"
-        
-        # Sub-agent roster
+        self.name = "MENTRO_PRIME"
         self.agents = {
-            "FRIDAY": FridayAgent(),
-            "STARK": StarkAgent(),
-            "SPECTRE": SpectreAgent(),
-            "HERALD": HeraldAgent(),
-            "BANNER": BannerAgent(),
-            "HULK": HulkAgent()
+            "CANVA_DESIGNER": CanvaDesignerAgent(),
+            "NOTEBOOK_AI": NotebookAIAgent(),
+            "CAREER_SUITE": CareerSuiteAgent(),
+            "INTERVIEWER_AI": InterviewerAIAgent(),
+            "GITHUB_STUDIO": GitHubStudioAgent()
         }
 
-    def evaluate_safety_policy(self, target_agent: str, command: str) -> str:
-        """
-        Declarative safety policies:
-        - System actions (STARK shell commands) require 'allow' policy check.
-        - High-impact commands evaluate safety hooks.
-        """
-        if target_agent == "STARK" and any(k in command.lower() for k in ["delete", "remove", "shutdown", "format"]):
-            return "ASK_USER_CONFIRMATION"
-        return "ALLOWED"
-
-    def pre_route_keyword(self, command: str) -> tuple:
-        """Fast pre-routing rules based on command keywords"""
+    def execute_command_sync(self, command: str, model: str = "gemini-3.5-flash-lite", module: str = None, payload: dict = None) -> dict:
+        """Synchronous execution handler"""
         cmd_lower = command.lower()
-        
-        # SPECTRE: Web Browser New Tabs / Searches ("chrome tab", "comet tab", "new tab", "search google")
-        if any(k in cmd_lower for k in ["new tab", "chrome tab", "comet tab", "open tab", "google", "search", "url", "http"]):
-            return "SPECTRE", "Routing to SPECTRE for web browser tab automation."
 
-        # STARK: OS / Taskbar / Installed Desktop Apps (YouTube app, WhatsApp, Comet browser, Notepad, Calc, Taskbar)
-        if any(k in cmd_lower for k in ["youtube app", "whatsapp", "comet", "notepad", "calculator", "calc", "cmd", "powershell", "explorer", "spotify", "discord", "vlc", "vscode", "code", "taskbar", "installed app", "open app", "launch app", "slot", "win+"]) or cmd_lower.startswith(("open ", "launch ", "run ")):
-            return "STARK", "Routing to STARK for desktop installed app & taskbar control."
+        # Module-specific direct execution
+        if module == "canva" or "design" in cmd_lower or "poster" in cmd_lower or "canva" in cmd_lower:
+            return self.agents["CANVA_DESIGNER"].execute(command, model=model)
+        elif module == "notebook" or "summarize" in cmd_lower or "notes" in cmd_lower or "notebook" in cmd_lower:
+            return self.agents["NOTEBOOK_AI"].execute(command, model=model)
+        elif module == "career" or "resume" in cmd_lower or "naukri" in cmd_lower or "linkedin" in cmd_lower or "ats" in cmd_lower:
+            p = payload or {"user_info": command}
+            return self.agents["CAREER_SUITE"].execute(p, model=model)
+        elif module == "interview" or "interview" in cmd_lower or "question" in cmd_lower:
+            p = payload or {"question": "Tell me about yourself", "answer": command}
+            return self.agents["INTERVIEWER_AI"].execute(p, model=model)
+        elif module == "github" or "github" in cmd_lower or "code" in cmd_lower or "repo" in cmd_lower:
+            p = payload or {"code": command}
+            return self.agents["GITHUB_STUDIO"].execute(p, model=model)
 
-        # BANNER: Design / Image / Poster / Draw / Artwork / Typography
-        if any(k in cmd_lower for k in ["design", "poster", "artwork", "draw", "image", "logo", "banner", "graphics"]):
-            return "BANNER", "Routing to BANNER for creative AI design & PIL layout."
+        # General completion
+        res = router.generate_completion(command, preferred_model=model)
+        return {
+            "status": "success",
+            "agent": self.name,
+            "result": res,
+            "message": f"Processed via {model}"
+        }
 
-        # FRIDAY: Brief / Task / Reminder / Schedule / Todo
-        if any(k in cmd_lower for k in ["brief", "task", "reminder", "schedule", "summary", "morning"]):
-            return "FRIDAY", "Routing to FRIDAY for intelligence briefs & task tracking."
-
-        # HERALD: Speak / Voice / Audio / Vocal / TTS
-        if any(k in cmd_lower for k in ["speak", "vocalize", "voice", "tts", "say"]):
-            return "HERALD", "Routing to HERALD for voice synthesis."
-
-        # HULK: Offline / Math / Calculate / Health / Failover
-        if any(k in cmd_lower for k in ["offline", "hulk", "health", "failover", "math", "calculate"]):
-            return "HULK", "Routing to HULK for emergency local offline execution."
-
-        return None, None
-
-    async def route_and_execute_stream(self, command: str) -> AsyncGenerator[Dict[str, Any], None]:
-        """
-        Asynchronous generator streaming JARVIS thinking traces, safety evaluation,
-        sub-agent delegation, and execution logs to the HUD UI.
-        """
+    async def route_and_execute_stream(self, command: str, model: str = "gemini-3.5-flash-lite") -> AsyncGenerator[Dict[str, Any], None]:
+        """Streaming execution generator for Mentro Web HUD"""
         yield {
             "event": "thinking",
             "agent": self.name,
-            "step": "Analyzing user voice/text payload...",
-            "thought": f"Parsing query parameters for: '{command}'"
+            "step": f"Analyzing payload with selected model '{model}'...",
+            "thought": f"Routing user input: '{command[:60]}...'"
         }
 
-        # Step 1: Pre-routing or LLM Intent Routing
-        target_agent, reasoning = self.pre_route_keyword(command)
-        sanitized_cmd = command
+        cmd_lower = command.lower()
+        target_agent = "CANVA_DESIGNER"
+        reasoning = "Routing to Canva Designer Studio."
 
-        if not target_agent:
-            routing_prompt = f"""You are JARVIS Prime Orchestrator.
-Analyze the user command: "{command}".
-Select the SINGLE best sub-agent from the AVENGERS roster:
-- FRIDAY: Intelligence briefing, calendar, task logging, to-do lists
-- STARK: Taskbar automation, launch Win app (notepad, calc, cmd), switch windows, OS execution
-- SPECTRE: Web browsing, open URL, search Google, list/switch/close browser tabs
-- HERALD: Text-to-speech, vocal feedback, audio transcription
-- BANNER: Create image design, poster creation, AI artwork, graphic layouts
-- HULK: Local math, system diagnostics, offline failover
-
-Return JSON format:
-{{
-  "target_agent": "FRIDAY" | "STARK" | "SPECTRE" | "HERALD" | "BANNER" | "HULK",
-  "reasoning": "Brief explanation of agent selection",
-  "sanitized_command": "Cleaned command to pass to sub-agent"
-}}
-"""
-            yield {
-                "event": "thinking",
-                "agent": self.name,
-                "step": "Querying Dual API Router for intent classification...",
-                "thought": "Evaluating primary Gemini model with fallback readiness."
-            }
-
-            route_res = router.generate_completion(routing_prompt, json_mode=True)
-            target_agent = "FRIDAY"
-            reasoning = "Defaulting to FRIDAY intelligence."
-
-            try:
-                parsed = json.loads(route_res)
-                target_agent = parsed.get("target_agent", "FRIDAY").upper()
-                reasoning = parsed.get("reasoning", reasoning)
-                sanitized_cmd = parsed.get("sanitized_command", command)
-            except Exception as e:
-                logging.error(f"[JARVIS] Routing parse error: {e}")
-
-        if target_agent not in self.agents:
-            target_agent = "HULK"
+        if "resume" in cmd_lower or "career" in cmd_lower or "naukri" in cmd_lower or "linkedin" in cmd_lower:
+            target_agent = "CAREER_SUITE"
+            reasoning = "Routing to Career Suite & Resume Builder."
+        elif "interview" in cmd_lower or "question" in cmd_lower or "eval" in cmd_lower:
+            target_agent = "INTERVIEWER_AI"
+            reasoning = "Routing to AI Mock Interviewer."
+        elif "document" in cmd_lower or "summarize" in cmd_lower or "notes" in cmd_lower or "notebook" in cmd_lower:
+            target_agent = "NOTEBOOK_AI"
+            reasoning = "Routing to NotebookLM Studio."
+        elif "github" in cmd_lower or "code" in cmd_lower or "repo" in cmd_lower:
+            target_agent = "GITHUB_STUDIO"
+            reasoning = "Routing to GitHub Code Studio."
 
         yield {
             "event": "agent_selected",
-            "agent": self.name,
             "target": target_agent,
-            "reasoning": reasoning,
-            "step": f"Delegated task to sub-agent [{target_agent}]"
+            "reasoning": reasoning
         }
 
-        # Step 2: Safety Policy Evaluation Hook
-        policy_status = self.evaluate_safety_policy(target_agent, sanitized_cmd)
-        yield {
-            "event": "safety_check",
-            "agent": self.name,
-            "target": target_agent,
-            "policy": policy_status,
-            "step": f"Safety Policy evaluated: {policy_status}"
-        }
-
-        # Step 3: Sub-Agent Execution
         yield {
             "event": "executing",
             "agent": target_agent,
-            "step": f"{target_agent} sub-agent executing workload...",
-            "command": sanitized_cmd
+            "command": command
         }
 
-        sub_agent = self.agents[target_agent]
-        try:
-            if asyncio.iscoroutinefunction(sub_agent.execute):
-                result = await sub_agent.execute(sanitized_cmd)
-            else:
-                result = sub_agent.execute(sanitized_cmd)
-        except Exception as err:
-            logging.error(f"[JARVIS] Sub-agent [{target_agent}] error: {err}. Triggering HULK failover...")
-            result = self.agents["HULK"].execute(sanitized_cmd)
-            result["failover_triggered"] = True
-
-        # Step 4: Final Synthesis & Audio vocalization
-        speak_text = result.get("message") or result.get("brief") or f"{target_agent} protocol completed."
-        
-        if target_agent != "HERALD":
-            try:
-                self.agents["HERALD"].speak(speak_text[:120])
-            except Exception:
-                pass
+        result = self.execute_command_sync(command, model=model, module=target_agent.lower().split("_")[0])
 
         yield {
             "event": "completed",
             "agent": target_agent,
-            "result": result,
-            "final_response": speak_text,
-            "step": "JARVIS Execution Cycle Complete."
+            "final_response": result.get("message", "Task execution complete."),
+            "result": result
         }
 
-    def execute_command_sync(self, command: str) -> dict:
-        """Synchronous helper for automated test suites"""
-        import asyncio
-        async def _run():
-            outputs = []
-            async for step in self.route_and_execute_stream(command):
-                outputs.append(step)
-            return outputs[-1]
-        return asyncio.run(_run())
-
-# Global Instance
-orchestrator = JarvisOrchestrator()
+orchestrator = MentroOrchestrator()

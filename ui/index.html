@@ -3,64 +3,195 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JARVIS AI - AVENGERS HUD CONTROL CENTER</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>MENTRO AI — All-in-One Superagent Platform</title>
     <link rel="stylesheet" href="/ui/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
 </head>
 <body>
     <header>
-        <div class="logo-container">
-            <h1>J.A.R.V.I.S <span>AI</span></h1>
-            <div class="subtitle">A.V.E.N.G.E.R.S PROTOCOL ORCHESTRATOR</div>
+        <div class="brand">
+            <h1>MENTRO <span>AI</span></h1>
+            <div class="subtitle">ALL-IN-ONE SUPERAGENT PLATFORM</div>
         </div>
+
+        <!-- 12+ Model Selector Dropdown -->
+        <div class="model-selector-container">
+            <label for="modelSelect">🤖 ACTIVE MODEL:</label>
+            <select id="modelSelect" class="model-select-dropdown">
+                <!-- Populated dynamically via JS -->
+            </select>
+        </div>
+
         <div class="system-status">
-            <div class="status-badge">
-                <div class="dot"></div>
-                <span>CORE ONLINE (PORT 7334)</span>
-            </div>
-            <div class="status-badge" style="border-color: #ffd700; color: #ffd700;">
-                <span>DUAL ROUTER: GEMINI + GROQ</span>
-            </div>
+            <div class="status-badge"><div class="dot"></div> <span>PLATFORM ONLINE</span></div>
         </div>
     </header>
 
-    <main>
-        <!-- Left Panel: Sub-Agent Roster -->
-        <section class="panel">
-            <div class="panel-title">⚡ AVENGERS ROSTER (6 AGENTS)</div>
-            <div class="agents-grid" id="agentsGrid">
-                <!-- Dynamically generated agent cards -->
-            </div>
-        </section>
+    <!-- Superagent Suite Navigation Tabs -->
+    <nav class="suite-nav">
+        <button class="nav-tab active" data-tab="tab-terminal">🧠 Superagent Terminal</button>
+        <button class="nav-tab" data-tab="tab-canva">🎨 Canva Design Studio</button>
+        <button class="nav-tab" data-tab="tab-notebook">📚 NotebookLM Studio</button>
+        <button class="nav-tab" data-tab="tab-career">💼 Career Suite & Resume</button>
+        <button class="nav-tab" data-tab="tab-interview">🎙️ AI Mock Interviewer</button>
+        <button class="nav-tab" data-tab="tab-github">🐙 GitHub Code Studio</button>
+    </nav>
 
-        <!-- Center Panel: Voice Orb & Real-Time Terminal Stream -->
-        <section class="center-hud">
-            <div class="panel orb-container">
-                <div class="voice-orb" id="voiceOrb" title="Click to initiate voice command input"></div>
-            </div>
+    <main class="content-viewport">
 
-            <div class="terminal-console" id="terminalConsole">
-                <div class="log-entry">
-                    <span class="log-time">[SYSTEM INIT]</span> 
-                    <span class="log-success">JARVIS Prime Orchestrator online. Connected to WebSocket telemetry stream.</span>
+        <!-- Tab 1: Superagent Terminal & Orchestrator -->
+        <section id="tab-terminal" class="tab-pane active">
+            <div class="grid-2col">
+                <div class="panel">
+                    <div class="panel-title">⚡ Sub-Agent Roster</div>
+                    <div id="subagentsList" class="subagents-grid"></div>
                 </div>
-            </div>
 
-            <div class="input-bar">
-                <input type="text" id="cmdInput" placeholder="Enter command for JARVIS (e.g. 'Generate Marvel poster design', 'Briefing', 'Open Chrome tab')..." autocomplete="off">
-                <button class="btn-send" id="btnSend">EXECUTE</button>
-            </div>
-        </section>
-
-        <!-- Right Panel: Design & Output Viewport -->
-        <section class="panel">
-            <div class="panel-title">🎨 BANNER DESIGN & OUTPUT VIEW</div>
-            <div class="design-preview" id="designViewport">
-                <div class="placeholder-text">
-                    ⚡ Output canvas ready.<br>Execute a design command to render Pillow artwork here.
+                <div class="panel center-console">
+                    <div class="panel-title">📡 Live Stream Console</div>
+                    <div id="terminalConsole" class="terminal-console"></div>
+                    <div class="input-bar">
+                        <input type="text" id="cmdInput" placeholder="Prompt Mentro Superagent or any sub-agent...">
+                        <button id="btnSend" class="btn-primary">SEND</button>
+                    </div>
                 </div>
             </div>
         </section>
+
+        <!-- Tab 2: Canva Design Studio (Layered Graphic Editor) -->
+        <section id="tab-canva" class="tab-pane">
+            <div class="grid-2col">
+                <div class="panel">
+                    <div class="panel-title">🎨 Canvas Layer Inspector & Controls</div>
+                    <div class="form-group">
+                        <label>Design Prompt / Concept:</label>
+                        <input type="text" id="canvaPromptInput" placeholder="e.g. Modern AI Superagent Event Poster">
+                    </div>
+                    <button id="btnGenerateCanva" class="btn-primary">GENERATE LAYERS</button>
+                    
+                    <div class="layers-manager mt-15">
+                        <div class="section-subtitle">Editable Layers:</div>
+                        <div id="canvaLayersList" class="layers-list"></div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-title">🖼️ Interactive Canva Canvas Viewport</div>
+                    <div id="canvaCanvasContainer" class="canva-canvas-container">
+                        <div id="canvaCanvas" class="canva-canvas">
+                            <div class="canvas-placeholder">Enter a concept prompt to generate layered designs.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab 3: NotebookLM Studio -->
+        <section id="tab-notebook" class="tab-pane">
+            <div class="grid-2col">
+                <div class="panel">
+                    <div class="panel-title">📄 Document & Notes Input</div>
+                    <textarea id="notebookInput" class="custom-textarea" placeholder="Paste research notes, document text, or article content here..."></textarea>
+                    <div class="btn-group mt-10">
+                        <button id="btnSummarizeNotebook" class="btn-primary">Generate Synthesis</button>
+                        <button id="btnFlashcardsNotebook" class="btn-secondary">Extract Study Flashcards</button>
+                    </div>
+                </div>
+                <div class="panel">
+                    <div class="panel-title">💡 NotebookLM Insights & Flashcards</div>
+                    <div id="notebookOutput" class="output-box">Synthesis insights will appear here...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab 4: Career Suite (Naukri, Internshala, LinkedIn, Resume Builder) -->
+        <section id="tab-career" class="tab-pane">
+            <div class="grid-2col">
+                <div class="panel">
+                    <div class="panel-title">💼 Career Inputs</div>
+                    <div class="form-group">
+                        <label>Target Role / Background:</label>
+                        <input type="text" id="careerRoleInput" placeholder="e.g. Lead AI Architect / Full Stack Engineer">
+                    </div>
+                    <div class="form-group">
+                        <label>Your Resume / Experience Summary:</label>
+                        <textarea id="resumeInputText" class="custom-textarea-sm" placeholder="Paste your background summary..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Target Job Description (for ATS Match):</label>
+                        <textarea id="jobDescInputText" class="custom-textarea-sm" placeholder="Paste target job description..."></textarea>
+                    </div>
+                    <div class="btn-group mt-10">
+                        <button id="btnBuildResume" class="btn-primary">Build ATS Resume</button>
+                        <button id="btnATSCheck" class="btn-secondary">Check ATS Match Score</button>
+                    </div>
+                </div>
+                <div class="panel">
+                    <div class="panel-title">📊 Career Telemetry & Generated Resume</div>
+                    <div id="careerOutput" class="output-box">ATS score & formatted resume will render here...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab 5: AI Mock Interviewer -->
+        <section id="tab-interview" class="tab-pane">
+            <div class="grid-2col">
+                <div class="panel">
+                    <div class="panel-title">🎙️ Mock Interview Simulator</div>
+                    <div class="form-group">
+                        <label>Select Target Interview Role:</label>
+                        <select id="interviewRoleSelect" class="model-select-dropdown">
+                            <option value="Software Engineer">Software Engineer (System Design & Code)</option>
+                            <option value="Product Manager">Product Manager (Strategy & Metrics)</option>
+                            <option value="Data Scientist">Data Scientist & AI Architect</option>
+                            <option value="UI/UX Designer">UI/UX Designer (Product Design)</option>
+                        </select>
+                    </div>
+                    <button id="btnGetQuestion" class="btn-primary mt-10">Generate Interview Question</button>
+                    
+                    <div class="form-group mt-15">
+                        <label>Current Interview Question:</label>
+                        <div id="interviewQuestionBox" class="question-box">Click "Generate Question" to start.</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Your Answer:</label>
+                        <textarea id="candidateAnswerText" class="custom-textarea-sm" placeholder="Type or speak your answer..."></textarea>
+                    </div>
+                    <button id="btnSubmitAnswer" class="btn-primary">Submit Answer for Scoring</button>
+                </div>
+                <div class="panel">
+                    <div class="panel-title">⭐ AI Interview Evaluation & Score</div>
+                    <div id="interviewEvaluationBox" class="output-box">Real-time interview scoring & feedback will appear here...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab 6: GitHub Code Studio -->
+        <section id="tab-github" class="tab-pane">
+            <div class="grid-2col">
+                <div class="panel">
+                    <div class="panel-title">🐙 GitHub Repository & Code Analyzer</div>
+                    <div class="form-group">
+                        <label>GitHub Repository URL:</label>
+                        <input type="text" id="githubRepoUrl" value="https://github.com/faizalmd2603/JARVIS_Saturday_AI">
+                    </div>
+                    <button id="btnInspectRepo" class="btn-primary">Inspect Repository Telemetry</button>
+                    
+                    <div class="form-group mt-15">
+                        <label>Paste Code Snippet for AI Code Review:</label>
+                        <textarea id="codeReviewText" class="custom-textarea-sm" placeholder="def my_function(): ..."></textarea>
+                    </div>
+                    <button id="btnReviewCode" class="btn-secondary">Run AI Code Review</button>
+                </div>
+                <div class="panel">
+                    <div class="panel-title">🔍 Code Review & Repository Insights</div>
+                    <div id="githubOutput" class="output-box">GitHub inspection & code review will render here...</div>
+                </div>
+            </div>
+        </section>
+
     </main>
 
     <script src="/ui/app.js"></script>
