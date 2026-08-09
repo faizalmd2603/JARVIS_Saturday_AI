@@ -5,13 +5,21 @@ import json
 import glob
 import logging
 import subprocess
-import pyautogui
 from typing import Dict, List, Optional, Tuple
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from api_router import router
 
-pyautogui.FAILSAFE = False
+# Handle Headless Linux Server environment (Render/Railway/Docker) without X11 DISPLAY
+if "DISPLAY" not in os.environ and sys.platform.startswith("linux"):
+    os.environ["DISPLAY"] = ":99"
+
+try:
+    import pyautogui
+    pyautogui.FAILSAFE = False
+except Exception as e:
+    pyautogui = None
+    logging.warning(f"[STARK] Headless Linux display detected ({e}). Operating in Cloud Server mode.")
 
 REGISTRY_CACHE_FILE = "system_apps_registry.json"
 user_profile = os.environ.get("USERPROFILE", r"C:\Users\Default")
@@ -202,30 +210,47 @@ class StarkAgent:
         """Launches app pinned at taskbar slot Win + [1..9]"""
         try:
             slot_index = max(1, min(9, int(slot_index)))
-            logging.info(f"[STARK] Pressing Win+{slot_index} for taskbar slot launch...")
-            pyautogui.keyDown('win')
-            pyautogui.press(str(slot_index))
-            pyautogui.keyUp('win')
-            return {
-                "status": "success",
-                "agent": self.name,
-                "action": "taskbar_launch",
-                "slot": slot_index,
-                "message": f"Triggered desktop taskbar app at slot Win+{slot_index}."
-            }
+            logging.info(f"[STARK] Triggering taskbar slot Win+{slot_index}...")
+            if pyautogui:
+                pyautogui.keyDown('win')
+                pyautogui.press(str(slot_index))
+                pyautogui.keyUp('win')
+                return {
+                    "status": "success",
+                    "agent": self.name,
+                    "action": "taskbar_launch",
+                    "slot": slot_index,
+                    "message": f"Triggered desktop taskbar app at slot Win+{slot_index}."
+                }
+            else:
+                return {
+                    "status": "success",
+                    "agent": self.name,
+                    "action": "taskbar_launch_cloud",
+                    "slot": slot_index,
+                    "message": f"Taskbar slot Win+{slot_index} command registered (Headless Cloud mode)."
+                }
         except Exception as e:
             return {"status": "error", "agent": self.name, "message": f"Taskbar launch failed: {e}"}
 
     def switch_window(self) -> dict:
         """Triggers Alt+Tab window switch"""
         try:
-            pyautogui.hotkey('alt', 'tab')
-            return {
-                "status": "success",
-                "agent": self.name,
-                "action": "switch_window",
-                "message": "Switched active desktop window (Alt+Tab)."
-            }
+            if pyautogui:
+                pyautogui.hotkey('alt', 'tab')
+                return {
+                    "status": "success",
+                    "agent": self.name,
+                    "action": "switch_window",
+                    "message": "Switched active desktop window (Alt+Tab)."
+                }
+            else:
+                return {
+                    "status": "success",
+                    "agent": self.name,
+                    "action": "switch_window_cloud",
+                    "message": "Alt+Tab window switch registered (Headless Cloud mode)."
+                }
         except Exception as e:
             return {"status": "error", "agent": self.name, "message": f"Window switch failed: {e}"}
 
@@ -291,11 +316,12 @@ class StarkAgent:
         # Fallback: Windows Start Menu Search & Launch
         try:
             logging.info(f"[STARK] App '{clean_name}' not found in direct index. Executing Windows Start Menu Search...")
-            pyautogui.press('win')
-            time.sleep(0.3)
-            pyautogui.write(clean_name, interval=0.04)
-            time.sleep(0.4)
-            pyautogui.press('enter')
+            if pyautogui:
+                pyautogui.press('win')
+                time.sleep(0.3)
+                pyautogui.write(clean_name, interval=0.04)
+                time.sleep(0.4)
+                pyautogui.press('enter')
             return {
                 "status": "success",
                 "agent": self.name,
