@@ -77,17 +77,17 @@ function initWebSocket() {
     try {
         socket = new WebSocket(wsUrl);
         socket.onopen = () => {
-            appendLog("SYSTEM", `WebSocket online on ${window.location.host}.`, "log-success");
+            appendLog("SYSTEM", `WebSocket stream active on ${window.location.host}.`, "log-success");
         };
         socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
             handleServerEvent(data);
         };
         socket.onclose = () => {
-            setTimeout(initWebSocket, 3000);
+            appendLog("SYSTEM", "HTTP Serverless Mode active.", "log-muted");
         };
     } catch (e) {
-        setTimeout(initWebSocket, 3000);
+        appendLog("SYSTEM", "HTTP Serverless Mode active.", "log-muted");
     }
 }
 
@@ -112,19 +112,38 @@ function appendLog(agent, text) {
 }
 
 function setupEventListeners() {
-    // Terminal Command
+    // Superagent Terminal Command (WebSocket + HTTP Serverless Fallback)
     const sendBtn = document.getElementById("btnSend");
     const cmdInput = document.getElementById("cmdInput");
     
-    const sendCmd = () => {
+    const sendCmd = async () => {
         const text = cmdInput.value.trim();
         if (!text) return;
+        cmdInput.value = "";
+        appendLog("USER", text);
+
         if (socket && socket.readyState === WebSocket.OPEN) {
             socket.send(JSON.stringify({ type: "command", text: text, model: getSelectedModel() }));
-            appendLog("USER", text);
-            cmdInput.value = "";
+        } else {
+            appendLog("MENTRO", `Processing command via HTTP Serverless [${getSelectedModel()}]...`);
+            try {
+                const res = await fetch("/api/terminal", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ text: text, model: getSelectedModel() })
+                });
+                const data = await res.json();
+                if (data.result) {
+                    const agentName = data.result.agent || data.agent || "MENTRO";
+                    const msg = data.result.message || data.result.result || JSON.stringify(data.result);
+                    appendLog(agentName, msg);
+                }
+            } catch (e) {
+                appendLog("ERROR", `Failed to execute terminal command: ${e}`);
+            }
         }
     };
+
     sendBtn.addEventListener("click", sendCmd);
     cmdInput.addEventListener("keypress", (e) => { if (e.key === "Enter") sendCmd(); });
 
@@ -142,6 +161,7 @@ function setupEventListeners() {
             const data = await res.json();
             if (data.design) {
                 renderCanvaDesign(data.design);
+                appendLog("CANVA", `Design ready: '${data.design.title}' with ${data.design.layers?.length || 0} editable layers.`);
             }
         } catch (e) {
             console.error("Canva API error:", e);
@@ -289,13 +309,11 @@ function renderCanvaDesign(design) {
     const scale = 400 / (design.width || 1080);
 
     (design.layers || []).forEach(layer => {
-        // Add layer to list
         const item = document.createElement("div");
         item.className = "layer-item";
         item.innerHTML = `<span>[${layer.type.toUpperCase()}] ${layer.text || layer.id}</span> <span style="color:#00e5ff">${layer.fontSize || ''}px</span>`;
         layersList.appendChild(item);
 
-        // Render on canvas
         if (layer.type === "text") {
             const el = document.createElement("div");
             el.className = "canvas-layer-text";

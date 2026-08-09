@@ -15,3 +15,5 @@ ui/temp_audio/*
 tasks_log.json
 reminders_log.json
 .DS_Store
+
+.vercel

@@ -34,6 +34,13 @@ async def get_index():
 async def get_models():
     return {"status": "success", "models": AVAILABLE_MODELS}
 
+@app.post("/api/terminal")
+async def terminal_command(payload: dict):
+    text = payload.get("text", "")
+    model = payload.get("model", "gemini-3.5-flash-lite")
+    result = orchestrator.execute_command_sync(text, model=model)
+    return {"status": "success", "agent": result.get("agent", "MENTRO_PRIME"), "result": result}
+
 @app.post("/api/generate")
 async def generate_completion(payload: dict):
     prompt = payload.get("prompt", "")
