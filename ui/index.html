@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JARVIS AI - AVENGERS HUD CONTROL CENTER</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/ui/style.css">
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <h1>J.A.R.V.I.S <span>AI</span></h1>
+            <div class="subtitle">A.V.E.N.G.E.R.S PROTOCOL ORCHESTRATOR</div>
+        </div>
+        <div class="system-status">
+            <div class="status-badge">
+                <div class="dot"></div>
+                <span>CORE ONLINE (PORT 7334)</span>
+            </div>
+            <div class="status-badge" style="border-color: #ffd700; color: #ffd700;">
+                <span>DUAL ROUTER: GEMINI + GROQ</span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Left Panel: Sub-Agent Roster -->
+        <section class="panel">
+            <div class="panel-title">⚡ AVENGERS ROSTER (6 AGENTS)</div>
+            <div class="agents-grid" id="agentsGrid">
+                <!-- Dynamically generated agent cards -->
+            </div>
+        </section>
+
+        <!-- Center Panel: Voice Orb & Real-Time Terminal Stream -->
+        <section class="center-hud">
+            <div class="panel orb-container">
+                <div class="voice-orb" id="voiceOrb" title="Click to initiate voice command input"></div>
+            </div>
+
+            <div class="terminal-console" id="terminalConsole">
+                <div class="log-entry">
+                    <span class="log-time">[SYSTEM INIT]</span> 
+                    <span class="log-success">JARVIS Prime Orchestrator online. Connected to WebSocket telemetry stream.</span>
+                </div>
+            </div>
+
+            <div class="input-bar">
+                <input type="text" id="cmdInput" placeholder="Enter command for JARVIS (e.g. 'Generate Marvel poster design', 'Briefing', 'Open Chrome tab')..." autocomplete="off">
+                <button class="btn-send" id="btnSend">EXECUTE</button>
+            </div>
+        </section>
+
+        <!-- Right Panel: Design & Output Viewport -->
+        <section class="panel">
+            <div class="panel-title">🎨 BANNER DESIGN & OUTPUT VIEW</div>
+            <div class="design-preview" id="designViewport">
+                <div class="placeholder-text">
+                    ⚡ Output canvas ready.<br>Execute a design command to render Pillow artwork here.
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="/ui/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+# Environment & Secret Keys
+.env
+.env.txt
+
+# Python Virtual Environment & Caches
+.venv/
+venv/
+ENV/
+__pycache__/
+*.pyc
+
+# Local Data & Design Outputs
+ui/generated_designs/*.png
+ui/temp_audio/*
+tasks_log.json
+reminders_log.json
+.DS_Store

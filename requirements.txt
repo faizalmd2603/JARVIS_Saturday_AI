@@ -1,0 +1,12 @@
+google-antigravity
+groq
+google-genai
+pyautogui
+playwright
+pillow
+fastapi
+uvicorn
+websockets
+requests
+pyttsx3
+python-dotenv
