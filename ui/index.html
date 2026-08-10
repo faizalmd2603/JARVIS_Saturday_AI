@@ -3,196 +3,294 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MENTRO AI — All-in-One Superagent Platform</title>
+    <title>Mentro AI | Enterprise Superagent Platform</title>
     <link rel="stylesheet" href="/ui/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Marked.js for Rich Markdown Rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
-<body>
-    <header>
-        <div class="brand">
-            <h1>MENTRO <span>AI</span></h1>
-            <div class="subtitle">ALL-IN-ONE SUPERAGENT PLATFORM</div>
+<body class="corporate-theme">
+
+    <header class="mnc-header">
+        <div class="mnc-brand">
+            <div class="mnc-logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="6" fill="#2563eb"/><path d="M7 17L17 7M17 7H10M17 7V14" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span>Mentro <strong>AI Enterprise</strong></span>
+            </div>
+            <span class="corp-tag">v3.0 Production</span>
         </div>
 
-        <!-- 12+ Model Selector Dropdown -->
-        <div class="model-selector-container">
-            <label for="modelSelect">🤖 ACTIVE MODEL:</label>
-            <select id="modelSelect" class="model-select-dropdown">
-                <!-- Populated dynamically via JS -->
-            </select>
-        </div>
+        <div class="header-controls">
+            <!-- 12+ Model Selector Dropdown -->
+            <div class="model-select-wrap">
+                <label for="modelSelect">AI Model Engine:</label>
+                <select id="modelSelect" class="mnc-select">
+                    <!-- Populated dynamically via JS -->
+                </select>
+            </div>
 
-        <div class="system-status">
-            <div class="status-badge"><div class="dot"></div> <span>PLATFORM ONLINE</span></div>
+            <div class="system-status-badge">
+                <span class="pulse-dot"></span>
+                <span>Azure Cloud Ready</span>
+            </div>
         </div>
     </header>
 
-    <!-- Superagent Suite Navigation Tabs -->
-    <nav class="suite-nav">
-        <button class="nav-tab active" data-tab="tab-terminal">🧠 Superagent Terminal</button>
-        <button class="nav-tab" data-tab="tab-canva">🎨 Canva Design Studio</button>
-        <button class="nav-tab" data-tab="tab-notebook">📚 NotebookLM Studio</button>
-        <button class="nav-tab" data-tab="tab-career">💼 Career Suite & Resume</button>
-        <button class="nav-tab" data-tab="tab-interview">🎙️ AI Mock Interviewer</button>
-        <button class="nav-tab" data-tab="tab-github">🐙 GitHub Code Studio</button>
-    </nav>
+    <div class="enterprise-layout">
+        <!-- Sidebar Navigation (AWS / Azure Console Style) -->
+        <aside class="mnc-sidebar">
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-tab="tab-terminal">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+                    <span>Superagent Hub</span>
+                </button>
+                <button class="nav-item" data-tab="tab-canva">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path></svg>
+                    <span>Canva Graphic Studio</span>
+                </button>
+                <button class="nav-item" data-tab="tab-notebook">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                    <span>NotebookLM Studio</span>
+                </button>
+                <button class="nav-item" data-tab="tab-accountancy">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                    <span>Indian Accountancy Suite</span>
+                </button>
+                <button class="nav-item" data-tab="tab-duolingo">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                    <span>Duolingo Language Coach</span>
+                </button>
+                <button class="nav-item" data-tab="tab-career">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                    <span>Career & Resume Suite</span>
+                </button>
+                <button class="nav-item" data-tab="tab-interview">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line></svg>
+                    <span>AI Mock Interviewer</span>
+                </button>
+                <button class="nav-item" data-tab="tab-github">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+                    <span>GitHub Code Studio</span>
+                </button>
+            </nav>
+        </aside>
 
-    <main class="content-viewport">
+        <!-- Main Content Area -->
+        <main class="mnc-content">
 
-        <!-- Tab 1: Superagent Terminal & Orchestrator -->
-        <section id="tab-terminal" class="tab-pane active">
-            <div class="grid-2col">
-                <div class="panel">
-                    <div class="panel-title">⚡ Sub-Agent Roster</div>
-                    <div id="subagentsList" class="subagents-grid"></div>
-                </div>
-
-                <div class="panel center-console">
-                    <div class="panel-title">📡 Live Stream Console</div>
-                    <div id="terminalConsole" class="terminal-console"></div>
-                    <div class="input-bar">
-                        <input type="text" id="cmdInput" placeholder="Prompt Mentro Superagent or any sub-agent...">
-                        <button id="btnSend" class="btn-primary">SEND</button>
+            <!-- Pane 1: Superagent Hub -->
+            <section id="tab-terminal" class="tab-pane active">
+                <div class="grid-2col">
+                    <div class="mnc-card">
+                        <div class="card-header">⚡ Agent Roster & Telemetry</div>
+                        <div id="subagentsList" class="subagent-roster"></div>
                     </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Tab 2: Canva Design Studio (Layered Graphic Editor) -->
-        <section id="tab-canva" class="tab-pane">
-            <div class="grid-2col">
-                <div class="panel">
-                    <div class="panel-title">🎨 Canvas Layer Inspector & Controls</div>
-                    <div class="form-group">
-                        <label>Design Prompt / Concept:</label>
-                        <input type="text" id="canvaPromptInput" placeholder="e.g. Modern AI Superagent Event Poster">
-                    </div>
-                    <button id="btnGenerateCanva" class="btn-primary">GENERATE LAYERS</button>
-                    
-                    <div class="layers-manager mt-15">
-                        <div class="section-subtitle">Editable Layers:</div>
-                        <div id="canvaLayersList" class="layers-list"></div>
-                    </div>
-                </div>
-
-                <div class="panel">
-                    <div class="panel-title">🖼️ Interactive Canva Canvas Viewport</div>
-                    <div id="canvaCanvasContainer" class="canva-canvas-container">
-                        <div id="canvaCanvas" class="canva-canvas">
-                            <div class="canvas-placeholder">Enter a concept prompt to generate layered designs.</div>
+                    <div class="mnc-card flex-col">
+                        <div class="card-header">📡 Live Console Stream</div>
+                        <div id="terminalConsole" class="terminal-log-view"></div>
+                        <div class="cmd-bar">
+                            <input type="text" id="cmdInput" placeholder="Enter prompt or query for Mentro AI Superagent..." class="mnc-input">
+                            <button id="btnSend" class="mnc-btn btn-blue">Execute</button>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- Tab 3: NotebookLM Studio -->
-        <section id="tab-notebook" class="tab-pane">
-            <div class="grid-2col">
-                <div class="panel">
-                    <div class="panel-title">📄 Document & Notes Input</div>
-                    <textarea id="notebookInput" class="custom-textarea" placeholder="Paste research notes, document text, or article content here..."></textarea>
-                    <div class="btn-group mt-10">
-                        <button id="btnSummarizeNotebook" class="btn-primary">Generate Synthesis</button>
-                        <button id="btnFlashcardsNotebook" class="btn-secondary">Extract Study Flashcards</button>
+            <!-- Pane 2: Canva Graphic Studio -->
+            <section id="tab-canva" class="tab-pane">
+                <div class="grid-2col">
+                    <div class="mnc-card">
+                        <div class="card-header">🎨 Canva & Figma Design Generator</div>
+                        <div class="form-group">
+                            <label>Design Prompt / Concept:</label>
+                            <input type="text" id="canvaPromptInput" placeholder="e.g. Modern MNC Enterprise Cloud Security Infographic" class="mnc-input">
+                        </div>
+                        <button id="btnGenerateCanva" class="mnc-btn btn-blue mt-10">Generate Visual Graphic</button>
+                        
+                        <div class="mt-20">
+                            <div class="section-title">Editable Elements & Layers:</div>
+                            <div id="canvaLayersList" class="layers-container"></div>
+                        </div>
+                    </div>
+                    <div class="mnc-card">
+                        <div class="card-header flex-between">
+                            <span>🖼️ Interactive Graphic Preview</span>
+                            <button id="btnDownloadCanva" class="mnc-btn btn-sm btn-outline">Download SVG Graphic</button>
+                        </div>
+                        <div id="canvaViewport" class="canva-viewport">
+                            <div class="placeholder-text">Enter design concept prompt to generate visual graphics.</div>
+                        </div>
                     </div>
                 </div>
-                <div class="panel">
-                    <div class="panel-title">💡 NotebookLM Insights & Flashcards</div>
-                    <div id="notebookOutput" class="output-box">Synthesis insights will appear here...</div>
-                </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- Tab 4: Career Suite (Naukri, Internshala, LinkedIn, Resume Builder) -->
-        <section id="tab-career" class="tab-pane">
-            <div class="grid-2col">
-                <div class="panel">
-                    <div class="panel-title">💼 Career Inputs</div>
-                    <div class="form-group">
-                        <label>Target Role / Background:</label>
-                        <input type="text" id="careerRoleInput" placeholder="e.g. Lead AI Architect / Full Stack Engineer">
+            <!-- Pane 3: NotebookLM Studio -->
+            <section id="tab-notebook" class="tab-pane">
+                <div class="grid-2col">
+                    <div class="mnc-card">
+                        <div class="card-header">📚 NotebookLM Resource & Notes Input</div>
+                        <div class="form-group">
+                            <label>Paste Documents, Articles, or Study Notes:</label>
+                            <textarea id="notebookInput" class="mnc-textarea" placeholder="Paste research content or study text here..."></textarea>
+                        </div>
+                        <div class="form-group mt-10">
+                            <label>Google Web Search Citation Query (Optional):</label>
+                            <input type="text" id="notebookSearchQuery" placeholder="e.g. Latest advancements in LLM Agent architectures 2026" class="mnc-input">
+                        </div>
+                        <div class="btn-row mt-10">
+                            <button id="btnSummarizeNotebook" class="mnc-btn btn-blue">Generate Synthesis</button>
+                            <button id="btnSearchNotebook" class="mnc-btn btn-purple">Google Search Citation</button>
+                            <button id="btnFlashcardsNotebook" class="mnc-btn btn-outline">Extract Flashcards</button>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>Your Resume / Experience Summary:</label>
-                        <textarea id="resumeInputText" class="custom-textarea-sm" placeholder="Paste your background summary..."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Target Job Description (for ATS Match):</label>
-                        <textarea id="jobDescInputText" class="custom-textarea-sm" placeholder="Paste target job description..."></textarea>
-                    </div>
-                    <div class="btn-group mt-10">
-                        <button id="btnBuildResume" class="btn-primary">Build ATS Resume</button>
-                        <button id="btnATSCheck" class="btn-secondary">Check ATS Match Score</button>
+                    <div class="mnc-card">
+                        <div class="card-header">💡 Guided Synthesis & Interactive Flashcards</div>
+                        <div id="flashcardsContainer" class="flashcards-view" style="display:none;"></div>
+                        <div id="notebookOutput" class="markdown-body">Synthesis insights will render here...</div>
                     </div>
                 </div>
-                <div class="panel">
-                    <div class="panel-title">📊 Career Telemetry & Generated Resume</div>
-                    <div id="careerOutput" class="output-box">ATS score & formatted resume will render here...</div>
-                </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- Tab 5: AI Mock Interviewer -->
-        <section id="tab-interview" class="tab-pane">
-            <div class="grid-2col">
-                <div class="panel">
-                    <div class="panel-title">🎙️ Mock Interview Simulator</div>
-                    <div class="form-group">
-                        <label>Select Target Interview Role:</label>
-                        <select id="interviewRoleSelect" class="model-select-dropdown">
-                            <option value="Software Engineer">Software Engineer (System Design & Code)</option>
-                            <option value="Product Manager">Product Manager (Strategy & Metrics)</option>
-                            <option value="Data Scientist">Data Scientist & AI Architect</option>
-                            <option value="UI/UX Designer">UI/UX Designer (Product Design)</option>
-                        </select>
+            <!-- Pane 4: Indian Accountancy Suite -->
+            <section id="tab-accountancy" class="tab-pane">
+                <div class="grid-2col">
+                    <div class="mnc-card">
+                        <div class="card-header">📊 Indian Accountancy Solver (Class 11/12, B.Com, M.Com, CA)</div>
+                        <div class="form-group">
+                            <label>Accountancy Problem / Statement Request:</label>
+                            <textarea id="accountancyInput" class="mnc-textarea" placeholder="e.g. Prepare a Balance Sheet for XYZ Pvt Ltd with Share Capital ₹10,00,000, Reserves ₹2,00,000, 10% Debentures ₹5,00,000, Trade Payables ₹1,50,000, Fixed Assets ₹15,00,000, Cash & Bank ₹3,50,000."></textarea>
+                        </div>
+                        <button id="btnSolveAccountancy" class="mnc-btn btn-blue mt-10">Solve Accounting Sum & Generate Statements</button>
                     </div>
-                    <button id="btnGetQuestion" class="btn-primary mt-10">Generate Interview Question</button>
-                    
-                    <div class="form-group mt-15">
-                        <label>Current Interview Question:</label>
-                        <div id="interviewQuestionBox" class="question-box">Click "Generate Question" to start.</div>
+                    <div class="mnc-card">
+                        <div class="card-header">📑 Formatted Financial Statements & Solution</div>
+                        <div id="accountancyOutput" class="markdown-body">Financial statements, balance sheets, and journal entries will format here...</div>
                     </div>
-                    <div class="form-group">
-                        <label>Your Answer:</label>
-                        <textarea id="candidateAnswerText" class="custom-textarea-sm" placeholder="Type or speak your answer..."></textarea>
-                    </div>
-                    <button id="btnSubmitAnswer" class="btn-primary">Submit Answer for Scoring</button>
                 </div>
-                <div class="panel">
-                    <div class="panel-title">⭐ AI Interview Evaluation & Score</div>
-                    <div id="interviewEvaluationBox" class="output-box">Real-time interview scoring & feedback will appear here...</div>
-                </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- Tab 6: GitHub Code Studio -->
-        <section id="tab-github" class="tab-pane">
-            <div class="grid-2col">
-                <div class="panel">
-                    <div class="panel-title">🐙 GitHub Repository & Code Analyzer</div>
-                    <div class="form-group">
-                        <label>GitHub Repository URL:</label>
-                        <input type="text" id="githubRepoUrl" value="https://github.com/faizalmd2603/JARVIS_Saturday_AI">
+            <!-- Pane 5: Duolingo Language Learning Sub-Agent -->
+            <section id="tab-duolingo" class="tab-pane">
+                <div class="grid-2col">
+                    <div class="mnc-card">
+                        <div class="card-header">🦉 Duolingo Interactive Language Learning</div>
+                        <div class="form-group">
+                            <label>Select Target Language:</label>
+                            <select id="duoLanguageSelect" class="mnc-select">
+                                <option value="tamil">🇮🇳 Tamil (தமிழ்)</option>
+                                <option value="english">🇬🇧 English</option>
+                                <option value="hindi">🇮🇳 Hindi (हिंदी)</option>
+                                <option value="urdu">🇵🇰 Urdu (اردو)</option>
+                                <option value="french">🇫🇷 French (Français)</option>
+                            </select>
+                        </div>
+                        <div class="form-group mt-10">
+                            <label>Lesson Topic / Vocabulary Focus:</label>
+                            <input type="text" id="duoTopicInput" value="Basics, Greetings & Daily Phrases" class="mnc-input">
+                        </div>
+                        <div class="btn-row mt-10">
+                            <button id="btnDuoLesson" class="mnc-btn btn-blue">Start Language Lesson</button>
+                            <button id="btnDuoQuiz" class="mnc-btn btn-purple">Take Quiz Challenge</button>
+                        </div>
                     </div>
-                    <button id="btnInspectRepo" class="btn-primary">Inspect Repository Telemetry</button>
-                    
-                    <div class="form-group mt-15">
-                        <label>Paste Code Snippet for AI Code Review:</label>
-                        <textarea id="codeReviewText" class="custom-textarea-sm" placeholder="def my_function(): ..."></textarea>
+                    <div class="mnc-card">
+                        <div class="card-header">⭐ Gamified Lesson & Quiz Module</div>
+                        <div id="duoQuizContainer" class="quiz-container" style="display:none;"></div>
+                        <div id="duoLessonOutput" class="markdown-body">Select language and click 'Start Lesson'...</div>
                     </div>
-                    <button id="btnReviewCode" class="btn-secondary">Run AI Code Review</button>
                 </div>
-                <div class="panel">
-                    <div class="panel-title">🔍 Code Review & Repository Insights</div>
-                    <div id="githubOutput" class="output-box">GitHub inspection & code review will render here...</div>
-                </div>
-            </div>
-        </section>
+            </section>
 
-    </main>
+            <!-- Pane 6: Career Suite -->
+            <section id="tab-career" class="tab-pane">
+                <div class="grid-2col">
+                    <div class="mnc-card">
+                        <div class="card-header">💼 Career Suite (Naukri, Internshala, LinkedIn)</div>
+                        <div class="form-group">
+                            <label>Target Professional Title:</label>
+                            <input type="text" id="careerRoleInput" placeholder="e.g. Senior AI Systems Engineer" class="mnc-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Your Experience / Skill Highlights:</label>
+                            <textarea id="resumeInputText" class="mnc-textarea-sm" placeholder="Paste your background highlights..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Target Job Description (for ATS Gap Analysis):</label>
+                            <textarea id="jobDescInputText" class="mnc-textarea-sm" placeholder="Paste target job description..."></textarea>
+                        </div>
+                        <div class="btn-row mt-10">
+                            <button id="btnBuildResume" class="mnc-btn btn-blue">Build ATS Resume</button>
+                            <button id="btnATSCheck" class="mnc-btn btn-purple">Calculate ATS Match Score</button>
+                        </div>
+                    </div>
+                    <div class="mnc-card">
+                        <div class="card-header">📊 ATS Score & Professional Resume</div>
+                        <div id="careerOutput" class="markdown-body">ATS score breakdown & resume structure will render here...</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pane 7: AI Mock Interviewer -->
+            <section id="tab-interview" class="tab-pane">
+                <div class="grid-2col">
+                    <div class="mnc-card">
+                        <div class="card-header">🎙️ Role-Based AI Mock Interviewer</div>
+                        <div class="form-group">
+                            <label>Select Target Interview Role:</label>
+                            <select id="interviewRoleSelect" class="mnc-select">
+                                <option value="Software Engineer">Software Engineer (System Design & Code)</option>
+                                <option value="Product Manager">Product Manager (Strategy & Metrics)</option>
+                                <option value="Data Scientist">Data Scientist & AI Architect</option>
+                                <option value="UI/UX Designer">UI/UX Designer (Product Design)</option>
+                            </select>
+                        </div>
+                        <button id="btnGetQuestion" class="mnc-btn btn-blue mt-10">Generate Interview Question</button>
+                        
+                        <div class="form-group mt-15">
+                            <label>Current Interview Question:</label>
+                            <div id="interviewQuestionBox" class="mnc-highlight-box">Click "Generate Question" to start.</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Your Candidate Answer:</label>
+                            <textarea id="candidateAnswerText" class="mnc-textarea-sm" placeholder="Type or speak your answer..."></textarea>
+                        </div>
+                        <button id="btnSubmitAnswer" class="mnc-btn btn-blue">Submit Answer for Scoring</button>
+                    </div>
+                    <div class="mnc-card">
+                        <div class="card-header">⭐ Interview Evaluation & Score Feedback</div>
+                        <div id="interviewEvaluationBox" class="markdown-body">Evaluation rubric, score, and feedback will render here...</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pane 8: GitHub Code Studio -->
+            <section id="tab-github" class="tab-pane">
+                <div class="grid-2col">
+                    <div class="mnc-card">
+                        <div class="card-header">🐙 GitHub Code Studio</div>
+                        <div class="form-group">
+                            <label>GitHub Repository URL:</label>
+                            <input type="text" id="githubRepoUrl" value="https://github.com/faizalmd2603/JARVIS_Saturday_AI" class="mnc-input">
+                        </div>
+                        <button id="btnInspectRepo" class="mnc-btn btn-blue">Inspect Repository Telemetry</button>
+                        
+                        <div class="form-group mt-15">
+                            <label>Paste Code Snippet for AI Code Review:</label>
+                            <textarea id="codeReviewText" class="mnc-textarea-sm" placeholder="def my_function(): ..."></textarea>
+                        </div>
+                        <button id="btnReviewCode" class="mnc-btn btn-purple">Run AI Code Review</button>
+                    </div>
+                    <div class="mnc-card">
+                        <div class="card-header">🔍 Code Review & Optimization Insights</div>
+                        <div id="githubOutput" class="markdown-body">Code review analysis will render here...</div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
 
     <script src="/ui/app.js"></script>
 </body>

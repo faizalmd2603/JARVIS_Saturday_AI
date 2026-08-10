@@ -17,7 +17,7 @@ from api_router import AVAILABLE_MODELS, router
 
 load_dotenv()
 
-app = FastAPI(title="Mentro AI Superagent Platform", version="2.0.0")
+app = FastAPI(title="Mentro AI MNC Corporate Platform", version="3.0.0")
 
 TEMP_AUDIO_DIR = os.path.join("ui", "temp_audio")
 os.makedirs(TEMP_AUDIO_DIR, exist_ok=True)
@@ -41,14 +41,6 @@ async def terminal_command(payload: dict):
     result = orchestrator.execute_command_sync(text, model=model)
     return {"status": "success", "agent": result.get("agent", "MENTRO_PRIME"), "result": result}
 
-@app.post("/api/generate")
-async def generate_completion(payload: dict):
-    prompt = payload.get("prompt", "")
-    model = payload.get("model", "gemini-3.5-flash-lite")
-    sys_inst = payload.get("system_instruction")
-    res = router.generate_completion(prompt, system_instruction=sys_inst, preferred_model=model)
-    return {"status": "success", "model": model, "result": res}
-
 @app.post("/api/canva")
 async def canva_studio(payload: dict):
     prompt = payload.get("prompt", "Superagent Platform Poster")
@@ -57,10 +49,21 @@ async def canva_studio(payload: dict):
 
 @app.post("/api/notebook")
 async def notebook_studio(payload: dict):
-    content = payload.get("content", "")
     action = payload.get("action", "summarize")
     model = payload.get("model", "gemini-3.5-flash-lite")
-    return orchestrator.agents["NOTEBOOK_AI"].execute(content, action=action, model=model)
+    return orchestrator.agents["NOTEBOOK_AI"].execute(payload, action=action, model=model)
+
+@app.post("/api/accountancy")
+async def accountancy_solver(payload: dict):
+    problem = payload.get("problem", "Draft a Balance Sheet for ABC Ltd with Share Capital 500000")
+    model = payload.get("model", "gemini-3.5-flash-lite")
+    return orchestrator.agents["NOTEBOOK_AI"].solve_accountancy(problem, model=model)
+
+@app.post("/api/duolingo")
+async def duolingo_tutor(payload: dict):
+    action = payload.get("action", "lesson")
+    model = payload.get("model", "gemini-3.5-flash-lite")
+    return orchestrator.agents["LINGUA_DUO"].execute(payload, action=action, model=model)
 
 @app.post("/api/career")
 async def career_suite(payload: dict):
@@ -104,7 +107,7 @@ async def websocket_endpoint(websocket: WebSocket):
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 7334))
     print("\n=======================================================")
-    print(" [+] MENTRO AI - SUPERAGENT PLATFORM ONLINE")
+    print(" [+] MENTRO AI - MNC CORPORATE PLATFORM ONLINE")
     print(f" [+] Local Web App URL : http://localhost:{port}")
     print("=======================================================\n")
     uvicorn.run(app, host="0.0.0.0", port=port, log_level="info")
