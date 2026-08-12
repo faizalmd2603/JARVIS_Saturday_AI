@@ -3,29 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mentro AI | Enterprise Superagent Platform</title>
+    <title>Mentro AI | NextGen Enterprise Superagent Platform</title>
     <link rel="stylesheet" href="/ui/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-    <!-- Marked.js for Rich Markdown Rendering -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;700&family=Poppins:wght@400;600&family=Montserrat:wght@500;700&family=Playfair+Display:wght@700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Marked.js for Rich Markdown -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- html2pdf.js for 4K PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body class="corporate-theme">
+
+    <!-- Custom Interactive 3D Cursor -->
+    <div id="cursor3d" class="cursor-3d"></div>
 
     <header class="mnc-header">
         <div class="mnc-brand">
             <div class="mnc-logo">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="6" fill="#2563eb"/><path d="M7 17L17 7M17 7H10M17 7V14" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <span>Mentro <strong>AI Enterprise</strong></span>
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="6" fill="#2563eb"/><path d="M7 17L17 7M17 7H10M17 7V14" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span>Mentro <strong>AI NextGen</strong></span>
             </div>
-            <span class="corp-tag">v3.0 Production</span>
+            <span class="corp-tag">v4.0 Enterprise</span>
         </div>
 
         <div class="header-controls">
             <!-- 12+ Model Selector Dropdown -->
             <div class="model-select-wrap">
-                <label for="modelSelect">AI Model Engine:</label>
+                <label for="modelSelect">🤖 Model Hub Engine:</label>
                 <select id="modelSelect" class="mnc-select">
                     <!-- Populated dynamically via JS -->
                 </select>
@@ -33,7 +39,7 @@
 
             <div class="system-status-badge">
                 <span class="pulse-dot"></span>
-                <span>Azure Cloud Ready</span>
+                <span>Azure & Vercel 24/7 Cloud</span>
             </div>
         </div>
     </header>
@@ -42,13 +48,17 @@
         <!-- Sidebar Navigation (AWS / Azure Console Style) -->
         <aside class="mnc-sidebar">
             <nav class="sidebar-nav">
-                <button class="nav-item active" data-tab="tab-terminal">
+                <button class="nav-item active" data-tab="tab-core">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10H12V2z"></path><path d="M12 12L2.1 12a10 10 0 0 0 9.9 10V12z"></path></svg>
+                    <span>Core AI Agent</span>
+                </button>
+                <button class="nav-item" data-tab="tab-terminal">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
                     <span>Superagent Hub</span>
                 </button>
                 <button class="nav-item" data-tab="tab-canva">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path></svg>
-                    <span>Canva Graphic Studio</span>
+                    <span>Canva & Figma Studio</span>
                 </button>
                 <button class="nav-item" data-tab="tab-notebook">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
@@ -80,53 +90,135 @@
         <!-- Main Content Area -->
         <main class="mnc-content">
 
-            <!-- Pane 1: Superagent Hub -->
-            <section id="tab-terminal" class="tab-pane active">
+            <!-- Pane 0: Core AI Agent + Camera Hand Gesture Control -->
+            <section id="tab-core" class="tab-pane active">
                 <div class="grid-2col">
-                    <div class="mnc-card">
-                        <div class="card-header">⚡ Agent Roster & Telemetry</div>
-                        <div id="subagentsList" class="subagent-roster"></div>
+                    <div class="mnc-card tilt-card" id="coreCardLeft">
+                        <div class="card-header flex-between">
+                            <span>🤖 Core AI Agent (Gemini Chatbot)</span>
+                            <button id="btnToggleCameraGesture" class="mnc-btn btn-sm btn-purple">🎥 Enable Camera Hand Gesture</button>
+                        </div>
+
+                        <!-- Web Camera Gesture Detection Box -->
+                        <div id="gestureBox" class="gesture-camera-box" style="display:none;">
+                            <video id="webcamVideo" autoplay playsinline muted></video>
+                            <canvas id="gestureCanvas" style="display:none;"></canvas>
+                            <div class="gesture-status" id="gestureStatusText">Hand Motion Sensor: Active (Swipe/Wave to Expand/Contrast)</div>
+                        </div>
+
+                        <!-- 4 Pre-Defined Message Prompts -->
+                        <div class="predefined-prompts-title">⚡ Quick Starter Prompts:</div>
+                        <div class="predefined-prompts-grid">
+                            <button class="prompt-chip" data-prompt="Explain Quantum Computing & AI Neural Networks in simple terms with key architectural concepts.">⚡ Quantum AI & Neural Nets</button>
+                            <button class="prompt-chip" data-prompt="Architect a 24/7 Serverless Microservices System on Vercel and AWS Cloud with zero downtime.">🚀 Serverless Microservices</button>
+                            <button class="prompt-chip" data-prompt="Draft an Executive Elevator Pitch for Mentro AI Enterprise Superagent Platform for VC investors.">💼 Executive Elevator Pitch</button>
+                            <button class="prompt-chip" data-prompt="Analyze global financial markets, corporate accounting standards, and AI startup growth trends 2026.">📊 Financial & AI Market Trends</button>
+                        </div>
+
+                        <div class="form-group mt-15">
+                            <label>Ask Core AI Agent:</label>
+                            <textarea id="corePromptInput" class="mnc-textarea-sm" placeholder="Type prompt or click a starter prompt above..."></textarea>
+                        </div>
+                        <button id="btnSendCore" class="mnc-btn btn-blue">Send to Core AI Agent</button>
                     </div>
-                    <div class="mnc-card flex-col">
+
+                    <div class="mnc-card tilt-card" id="coreCardRight">
+                        <div class="card-header">💡 Core AI Intelligent Markdown Response</div>
+                        <div id="coreOutput" class="markdown-body">Core AI Assistant response will render here...</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pane 1: Superagent Hub & Product Roadmap -->
+            <section id="tab-terminal" class="tab-pane">
+                <div class="grid-2col">
+                    <div class="mnc-card tilt-card">
+                        <div class="card-header">⚡ 3D Product Architecture Roadmap</div>
+                        
+                        <!-- 3D Interactive Product Flow Diagram -->
+                        <div class="roadmap-flow-container">
+                            <div class="flow-node active-node"><span>1</span> Core AI & Models</div>
+                            <div class="flow-line"></div>
+                            <div class="flow-node"><span>2</span> Canva Vector Studio</div>
+                            <div class="flow-line"></div>
+                            <div class="flow-node"><span>3</span> NotebookLM RAG</div>
+                            <div class="flow-line"></div>
+                            <div class="flow-node"><span>4</span> Accountancy & Career</div>
+                        </div>
+
+                        <div id="subagentsList" class="subagent-roster mt-15"></div>
+                    </div>
+                    <div class="mnc-card flex-col tilt-card">
                         <div class="card-header">📡 Live Console Stream</div>
                         <div id="terminalConsole" class="terminal-log-view"></div>
                         <div class="cmd-bar">
-                            <input type="text" id="cmdInput" placeholder="Enter prompt or query for Mentro AI Superagent..." class="mnc-input">
+                            <input type="text" id="cmdInput" placeholder="Enter prompt for Mentro AI Superagent..." class="mnc-input">
                             <button id="btnSend" class="mnc-btn btn-blue">Execute</button>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- Pane 2: Canva Graphic Studio -->
+            <!-- Pane 2: Canva Graphic Studio + 100+ Fonts & Layer Drag/Move Editor -->
             <section id="tab-canva" class="tab-pane">
                 <div class="grid-2col">
                     <div class="mnc-card">
-                        <div class="card-header">🎨 Canva & Figma Design Generator</div>
+                        <div class="card-header flex-between">
+                            <span>🎨 Canva & Figma Visual Canvas Studio</span>
+                            <span class="quota-badge" id="imageQuotaBadge">20/20 Monthly Quota</span>
+                        </div>
+
                         <div class="form-group">
                             <label>Design Prompt / Concept:</label>
                             <input type="text" id="canvaPromptInput" placeholder="e.g. Modern MNC Enterprise Cloud Security Infographic" class="mnc-input">
                         </div>
-                        <button id="btnGenerateCanva" class="mnc-btn btn-blue mt-10">Generate Visual Graphic</button>
-                        
-                        <div class="mt-20">
-                            <div class="section-title">Editable Elements & Layers:</div>
+                        <button id="btnGenerateCanva" class="mnc-btn btn-blue">Generate Graphic Design</button>
+
+                        <div class="editor-tools-section mt-15">
+                            <div class="section-title">✏️ Layer Inspector & Typography Controls:</div>
+                            
+                            <div class="form-group mt-10">
+                                <label>100+ Font Family Selection:</label>
+                                <select id="canvaFontSelect" class="mnc-select">
+                                    <!-- Populated dynamically via JS -->
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Edit Layer Text Content:</label>
+                                <input type="text" id="layerTextInput" placeholder="Selected layer text..." class="mnc-input">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Upload Custom Image / Element:</label>
+                                <input type="file" id="imageUploadInput" accept="image/*" class="mnc-input">
+                            </div>
+
+                            <div class="btn-row mt-10">
+                                <button id="btnApplyLayerChanges" class="mnc-btn btn-purple">Apply Layer Edit</button>
+                                <button id="btnDownload4KPDF" class="mnc-btn btn-outline">📥 Export 4K PDF</button>
+                            </div>
+                        </div>
+
+                        <div class="mt-15">
+                            <div class="section-title">Layers List:</div>
                             <div id="canvaLayersList" class="layers-container"></div>
                         </div>
                     </div>
+
                     <div class="mnc-card">
                         <div class="card-header flex-between">
-                            <span>🖼️ Interactive Graphic Preview</span>
-                            <button id="btnDownloadCanva" class="mnc-btn btn-sm btn-outline">Download SVG Graphic</button>
+                            <span>🖼️ Drag-and-Move Canvas Preview</span>
+                            <button id="btnDownloadCanva" class="mnc-btn btn-sm btn-outline">Download SVG</button>
                         </div>
                         <div id="canvaViewport" class="canva-viewport">
-                            <div class="placeholder-text">Enter design concept prompt to generate visual graphics.</div>
+                            <div class="placeholder-text">Enter design concept prompt to generate graphics.</div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- Pane 3: NotebookLM Studio -->
+            <!-- Pane 3: NotebookLM Studio + 4K PDF Download -->
             <section id="tab-notebook" class="tab-pane">
                 <div class="grid-2col">
                     <div class="mnc-card">
@@ -143,9 +235,10 @@
                             <button id="btnSummarizeNotebook" class="mnc-btn btn-blue">Generate Synthesis</button>
                             <button id="btnSearchNotebook" class="mnc-btn btn-purple">Google Search Citation</button>
                             <button id="btnFlashcardsNotebook" class="mnc-btn btn-outline">Extract Flashcards</button>
+                            <button id="btnDownloadNotebookPDF" class="mnc-btn btn-outline">📥 Export 4K PDF</button>
                         </div>
                     </div>
-                    <div class="mnc-card">
+                    <div class="mnc-card" id="notebookOutputCard">
                         <div class="card-header">💡 Guided Synthesis & Interactive Flashcards</div>
                         <div id="flashcardsContainer" class="flashcards-view" style="display:none;"></div>
                         <div id="notebookOutput" class="markdown-body">Synthesis insights will render here...</div>

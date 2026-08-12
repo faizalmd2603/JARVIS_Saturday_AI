@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from api_router import router, AVAILABLE_MODELS
+from agents.core_ai import CoreAIAgent, PREDEFINED_PROMPTS
 from agents.canva_designer import CanvaDesignerAgent
 from agents.notebook_ai import NotebookAIAgent
 from agents.career_suite import CareerSuiteAgent
@@ -23,11 +24,12 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [MENTRO-MAIN] %(mess
 class MentroOrchestrator:
     """
     Mentro AI MNC Corporate Superagent Platform Main Orchestrator.
-    Manages 6 specialized AI sub-agents with rich Markdown & Visual outputs.
+    Manages 7 specialized AI sub-agents with 3D Motion UI & Web Camera Gesture Control.
     """
     def __init__(self):
         self.name = "MENTRO_PRIME"
         self.agents = {
+            "CORE_AI": CoreAIAgent(),
             "CANVA_DESIGNER": CanvaDesignerAgent(),
             "NOTEBOOK_AI": NotebookAIAgent(),
             "CAREER_SUITE": CareerSuiteAgent(),
@@ -41,7 +43,10 @@ class MentroOrchestrator:
         cmd_lower = command.lower()
 
         # Direct Module Routing
-        if module == "canva" or "design" in cmd_lower or "poster" in cmd_lower or "canva" in cmd_lower or "figma" in cmd_lower:
+        if module == "core" or "gemini" in cmd_lower or "core" in cmd_lower:
+            p = payload or {"prompt": command}
+            return self.agents["CORE_AI"].execute(p, model=model)
+        elif module == "canva" or "design" in cmd_lower or "poster" in cmd_lower or "canva" in cmd_lower or "figma" in cmd_lower:
             return self.agents["CANVA_DESIGNER"].execute(command, model=model)
         elif module == "duolingo" or "language" in cmd_lower or "tamil" in cmd_lower or "french" in cmd_lower or "hindi" in cmd_lower or "urdu" in cmd_lower:
             p = payload or {"language": "tamil", "topic": command}
@@ -66,16 +71,8 @@ class MentroOrchestrator:
             act = p.get("action", "review_code")
             return self.agents["GITHUB_STUDIO"].execute(p, action=act, model=model)
 
-        # General Assistant completion
-        system_instruction = """You are Mentro AI Corporate Superagent.
-Respond in clear, professional, well-structured Markdown (use headings, bold emphasis, tables, and bullet points where helpful)."""
-        res = router.generate_completion(command, system_instruction=system_instruction, preferred_model=model)
-        return {
-            "status": "success",
-            "agent": self.name,
-            "result_markdown": res,
-            "message": f"Processed query via {model}."
-        }
+        # Default: Core AI Assistant
+        return self.agents["CORE_AI"].execute({"prompt": command}, model=model)
 
     async def route_and_execute_stream(self, command: str, model: str = "gemini-3.5-flash-lite") -> AsyncGenerator[Dict[str, Any], None]:
         """Streaming execution generator for Mentro Web HUD"""
@@ -87,10 +84,13 @@ Respond in clear, professional, well-structured Markdown (use headings, bold emp
         }
 
         cmd_lower = command.lower()
-        target_agent = "CANVA_DESIGNER"
-        reasoning = "Routing to Canva Designer Studio."
+        target_agent = "CORE_AI"
+        reasoning = "Routing to Core AI Assistant."
 
-        if "language" in cmd_lower or "tamil" in cmd_lower or "french" in cmd_lower or "duolingo" in cmd_lower:
+        if "design" in cmd_lower or "poster" in cmd_lower or "canva" in cmd_lower or "figma" in cmd_lower:
+            target_agent = "CANVA_DESIGNER"
+            reasoning = "Routing to Canva Designer Studio."
+        elif "language" in cmd_lower or "tamil" in cmd_lower or "french" in cmd_lower or "duolingo" in cmd_lower:
             target_agent = "LINGUA_DUO"
             reasoning = "Routing to Duolingo Language Tutor."
         elif "accounting" in cmd_lower or "balance sheet" in cmd_lower or "ledger" in cmd_lower:

@@ -17,7 +17,7 @@ from api_router import AVAILABLE_MODELS, router
 
 load_dotenv()
 
-app = FastAPI(title="Mentro AI MNC Corporate Platform", version="3.0.0")
+app = FastAPI(title="Mentro AI MNC Platform NextGen", version="4.0.0")
 
 TEMP_AUDIO_DIR = os.path.join("ui", "temp_audio")
 os.makedirs(TEMP_AUDIO_DIR, exist_ok=True)
@@ -34,12 +34,17 @@ async def get_index():
 async def get_models():
     return {"status": "success", "models": AVAILABLE_MODELS}
 
+@app.post("/api/core")
+async def core_ai_agent(payload: dict):
+    model = payload.get("model", "gemini-3.5-flash-lite")
+    return orchestrator.agents["CORE_AI"].execute(payload, model=model)
+
 @app.post("/api/terminal")
 async def terminal_command(payload: dict):
     text = payload.get("text", "")
     model = payload.get("model", "gemini-3.5-flash-lite")
     result = orchestrator.execute_command_sync(text, model=model)
-    return {"status": "success", "agent": result.get("agent", "MENTRO_PRIME"), "result": result}
+    return {"status": "success", "agent": result.get("agent", "CORE_AI"), "result": result}
 
 @app.post("/api/canva")
 async def canva_studio(payload: dict):
@@ -107,7 +112,7 @@ async def websocket_endpoint(websocket: WebSocket):
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 7334))
     print("\n=======================================================")
-    print(" [+] MENTRO AI - MNC CORPORATE PLATFORM ONLINE")
+    print(" [+] MENTRO AI - NEXTGEN MNC PLATFORM ONLINE")
     print(f" [+] Local Web App URL : http://localhost:{port}")
     print("=======================================================\n")
     uvicorn.run(app, host="0.0.0.0", port=port, log_level="info")
